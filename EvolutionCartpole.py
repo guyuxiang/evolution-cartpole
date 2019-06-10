@@ -45,7 +45,7 @@ def get_fittness(agents):	    # 在Gym中训练并获得个体适应度
     for agent in agents:
         observation = env.reset()	# 初始化一个事件（Eposide）
         # 对于种群中的每一个个体,进行游戏的50000次测试训练
-        for _ in range(50000):
+        for _ in range(1000):
         	# 执行行动获取结果
             observation, reward, done, info = env.step(agent.action(observation))
             if done:	# 如果事件结束则退出循环
@@ -68,7 +68,7 @@ def make_agent(agents):	 # 从选择好的个体中随机选出两个产生新�
                       * agents[random.randint(0, keep - 1)])
     return agents 	# 返回自然选择后,适应高的个体进行繁衍,形成的新的种群
 
-env = gym.make('CartPole-v1')	# 初始化训练环境
+env = gym.make('CartPole-v0')	# 初始化训练环境
 
 keep = 60	# 自然选择中保留个体的数量	 
 population = 100	# 种群的总数
@@ -78,27 +78,21 @@ agents = [Agent() for _ in range(population)]	# 生成初始种群
 fitness_avg = []	 # 保持每一代种群平均适应度的列表
 fitness_max = []	 # 保持每一代种群最高适应度的列表
 
-# 训练主循环,进行51代进化
+# 训练主循环,进行50代进化
 for i in range(51):
     agents = make_agent(agents)                  # 生成种群
     agents, fitness, best = choose_agent(agents) # 自然选择后的种群,种群适应度,适应度最高的个体
     fitness_avg.append(np.mean(fitness))         # 保存这一代平均适应度数据
     fitness_max.append(np.max(fitness))			 # 保存这一代最高适应度数据
     print("第%d次进化完成! Average fitness: %d Maximum fitness: %d" % (i, np.mean(fitness), np.max(fitness)))
-    # 每训练10代，挑选出适应度最好的个体展示其行为
-    if i % 10 == 0 and i > 0:
-    	print("-------------------------------------------------------")
-    	print("挑选种群中适应度最好的个体展示行为")
-    	print("-------------------------------------------------------")
-    	observation = env.reset()
-    	for _ in range(1000):
-            env.render()    # 刷新当前环境，并显示
-            # 每一代中适应度最好的个体对observation做出动作,获得的结果
-            observation, reward, done, info = env.step(best.action(observation)) 
-            if done:
-            	print("展示结束,继续进化!")
-            	print("-------------------------------------------------------")
-            	break
+
+observation = env.reset()
+for _ in range(1000):
+    env.render()    # 刷新当前环境，并显示
+    # 适应度最好的个体对observation做出动作,获得的结果
+    observation, reward, done, info = env.step(best.action(observation)) 
+    if done:
+       break
 
 print("进化结束,展示适应度变化曲线")
 print("-------------------------------------------------------")
